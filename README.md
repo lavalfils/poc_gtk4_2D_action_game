@@ -2,6 +2,11 @@
 
 This is a Proof of Concept showing that it is possible to make a simple 2D action game using only Gtk4 widgets which are now GPU rendered. The game from the [allegro vivace's 'gameplay' tutorial section](https://github.com/liballeg/allegro_wiki/wiki/Allegro-Vivace%3A-Gameplay) was used and modified just enough to make it run using only gtk4 widgets instead of allegro.
 
+## How to play
+
+* Arrow keys to move ship
+* Space bar to shoot
+
 ![Screenshot](screenshot.png)
 
 ## Issues
