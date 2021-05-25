@@ -48,6 +48,23 @@ bool collide(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int 
 #define DISP_H (BUFFER_H * DISP_SCALE)
 
 
+// --- keyboard ---
+
+#define KEY_SEEN     1
+#define KEY_RELEASED 2
+
+enum Keytype{
+  KEY_UP,
+  KEY_DOWN,
+  KEY_LEFT,
+  KEY_RIGHT,
+  KEY_SPACE,
+  KEY_MAX
+};
+
+unsigned char key[KEY_MAX];
+
+
 // --- sprites ---
 
 #define SHIP_W 24
@@ -408,7 +425,7 @@ void shots_draw()
 
 // --- ship ---
 
-#define SHIP_SPEED 12
+#define SHIP_SPEED 6
 #define SHIP_MAX_X (DISP_W - SHIP_W)
 #define SHIP_MAX_Y (DISP_H - SHIP_H)
 
@@ -448,6 +465,25 @@ void ship_update()
     return;
   }
   
+  if(key[KEY_LEFT])
+    ship.x -= SHIP_SPEED;
+  if(key[KEY_RIGHT])
+    ship.x += SHIP_SPEED;
+  if(key[KEY_UP])
+    ship.y -= SHIP_SPEED;
+  if(key[KEY_DOWN])
+    ship.y += SHIP_SPEED;
+
+  if(ship.x < 0)
+    ship.x = 0;
+  if(ship.y < 0)
+    ship.y = 0;
+
+  if(ship.x > SHIP_MAX_X)
+    ship.x = SHIP_MAX_X;
+  if(ship.y > SHIP_MAX_Y)
+    ship.y = SHIP_MAX_Y;
+
   if(ship.invincible_timer)
     ship.invincible_timer--;
   else
@@ -469,6 +505,12 @@ void ship_update()
 
   if(ship.shot_timer)
     ship.shot_timer--;
+  else if(key[KEY_SPACE])
+  {
+    int x = ship.x + (SHIP_W / 2);
+    if(shots_add(true, false, x, ship.y))
+      ship.shot_timer = 5;
+  }
 }
 
 void ship_draw()
@@ -819,6 +861,9 @@ game_loop(GtkWidget *widget,
   
   frames++;
   
+  for(int i = 0; i < KEY_MAX; i++)
+    key[i] &= KEY_SEEN;
+  
   stars_draw();
   aliens_draw();
   shots_draw();
@@ -831,7 +876,23 @@ game_loop(GtkWidget *widget,
 }
 
 
-// --- key pressed ---
+// --- keyboard ---
+
+static int keyval_to_keytype(guint keyval)
+{
+  if(keyval == GDK_KEY_Left)
+    return KEY_LEFT;
+  if(keyval == GDK_KEY_Right)
+    return KEY_RIGHT;
+  if(keyval == GDK_KEY_Up)
+    return KEY_UP;
+  if(keyval == GDK_KEY_Down)
+    return KEY_DOWN;
+  if(keyval == GDK_KEY_space)
+    return KEY_SPACE;
+    
+  return -1;
+}
 
 static void
 key_pressed (GtkEventControllerKey *controller, 
@@ -840,35 +901,26 @@ key_pressed (GtkEventControllerKey *controller,
              GdkModifierType state, 
              gpointer user_data)
 {
-  if(keyval == GDK_KEY_Left)
-    ship.x -= SHIP_SPEED;
-  if(keyval == GDK_KEY_Right)
-    ship.x += SHIP_SPEED;
-  if(keyval == GDK_KEY_Up)
-    ship.y -= SHIP_SPEED;
-  if(keyval == GDK_KEY_Down)
-    ship.y += SHIP_SPEED;
-
-  if(ship.x < 0)
-    ship.x = 0;
-  if(ship.y < 0)
-    ship.y = 0;
-
-  if(ship.x > SHIP_MAX_X)
-    ship.x = SHIP_MAX_X;
-  if(ship.y > SHIP_MAX_Y)
-    ship.y = SHIP_MAX_Y;
-    
-  if(keyval == GDK_KEY_space && ship.shot_timer <= 0)
-  {
-    int x = ship.x + (SHIP_W / 2);
-    if(shots_add(true, false, x, ship.y))
-      ship.shot_timer = 5;
-  }
+  int keytype = keyval_to_keytype(keyval);
+  if(keytype > -1)
+    key[keytype] = KEY_SEEN | KEY_RELEASED;
   
   if(keyval == GDK_KEY_Escape)
     gtk_window_close(GTK_WINDOW(window));
 }
+
+static void
+key_released (GtkEventControllerKey *controller, 
+              guint keyval, 
+              guint keycode, 
+              GdkModifierType state, 
+              gpointer user_data)
+{
+  int keytype = keyval_to_keytype(keyval);
+  if(keytype > -1)
+    key[keytype] &= KEY_RELEASED;
+}
+
 
 static void
 activate (GtkApplication *app,
@@ -914,6 +966,7 @@ activate (GtkApplication *app,
   GtkEventController *keyboard = gtk_event_controller_key_new();
   gtk_widget_add_controller(window, keyboard);
   g_signal_connect(keyboard, "key-pressed", G_CALLBACK(key_pressed), window);
+  g_signal_connect(keyboard, "key-released", G_CALLBACK(key_released), window);
   
   // --- start game loop ---
   gtk_widget_add_tick_callback(window, game_loop, NULL, NULL);
