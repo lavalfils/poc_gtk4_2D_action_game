@@ -13,9 +13,11 @@ This is a Proof of Concept showing that it is possible to make a simple 2D actio
 
 * __No sound fx__. I removed all codes related to sound effects as I am only testing the gtk4 widgets.
 
-* __Keyboard input is not fluid__ as key press events are processed using the GtkEventControllerKey which is meant for widgets and not for game input processing.
-
 * __No tint effects__ as implemented in the original allegro tutorial. May be can be implemented with gtk's CSS ?
+
+## Solved issues
+
+* The problem with keyboard input not being fluid has been fixed. Actually the solution was already implemented in the original code but i inadvertently deleted the codes while converting keyboard processing from allegro to gtk4.
 
 ## Implementation details
 
