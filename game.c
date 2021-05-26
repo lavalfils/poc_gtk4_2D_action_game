@@ -720,6 +720,15 @@ void aliens_draw()
       continue;
     }
     
+    if(aliens[i].blink > 0 && !gtk_widget_has_css_class(aliens[i].picture, "red"))
+    {
+      gtk_widget_add_css_class(aliens[i].picture, "red");
+    }
+    else if(gtk_widget_has_css_class(aliens[i].picture, "red"))
+    {
+      gtk_widget_remove_css_class(aliens[i].picture, "red");
+    }
+    
     gtk_picture_set_paintable(GTK_PICTURE(aliens[i].picture), 
       GDK_PAINTABLE(sprites.alien[aliens[i].type]));
     gtk_widget_set_size_request(aliens[i].picture, ALIEN_W[aliens[i].type],
@@ -921,6 +930,7 @@ key_released (GtkEventControllerKey *controller,
     key[keytype] &= KEY_RELEASED;
 }
 
+static GtkCssProvider *provider = NULL;
 
 static void
 activate (GtkApplication *app,
@@ -970,6 +980,15 @@ activate (GtkApplication *app,
   
   // --- start game loop ---
   gtk_widget_add_tick_callback(window, game_loop, NULL, NULL);
+  
+  // --- add css for tint effects ---
+  provider = gtk_css_provider_new();
+  gtk_css_provider_load_from_data(provider, 
+    ".red{filter: sepia(100%) hue-rotate(0deg) saturate(10000%) brightness(75%);}", 
+    -1);
+  gtk_style_context_add_provider_for_display(gdk_display_get_default(),
+    GTK_STYLE_PROVIDER(provider), 800);
+  g_object_unref(provider);
 
   gtk_widget_show (window);
 }
@@ -988,6 +1007,9 @@ main (int    argc,
   
   sprites_deinit();
   
-  g_printf("%d", status);
+  gtk_style_context_remove_provider_for_display(gdk_display_get_default(), 
+    GTK_STYLE_PROVIDER(provider));
+    
+  provider = NULL;
   return status;
 }
