@@ -13,11 +13,11 @@ This is a Proof of Concept showing that it is possible to make a simple 2D actio
 
 * __No sound fx__. I removed all codes related to sound effects as I am only testing the gtk4 widgets.
 
-* __No tint effects__ as implemented in the original allegro tutorial. May be can be implemented with gtk's CSS ?
-
 ## Solved issues
 
 * The problem with keyboard input not being fluid has been fixed. Actually the solution was already implemented in the original code but i inadvertently deleted the codes while converting keyboard processing from allegro to gtk4.
+
+* Was able to add tint effects via css. To test the tint effects, I tinted the alien ships to red when they get hit. 
 
 ## Implementation details
 
