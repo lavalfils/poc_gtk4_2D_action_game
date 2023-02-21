@@ -51,3 +51,6 @@ gcc -o game game.c `pkg-config --cflags --libs gtk4`
 ```
 ./game
 ```
+## Python version
+
+[pygtk4game](https://github.com/lavalfils/pygtk4game) is the python version which uses Python 3 and PyGObject.
