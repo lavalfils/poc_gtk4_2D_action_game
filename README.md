@@ -54,3 +54,4 @@ gcc -o game game.c `pkg-config --cflags --libs gtk4`
 ## Python version
 
 [pygtk4game](https://github.com/lavalfils/pygtk4game) is the python version which uses Python 3 and PyGObject.
+[tkinter_2d_action_game](https://github.com/lavalfils/tkinter_2d_action_game) is the python version using tkinter only.
